@@ -12,6 +12,9 @@ P.S.
 - Убрал .env из .gitignore для легкого запуска тестового, в реальный проектах так не делаю, конечно
 - SMS не смог добавить, так как не нашел подходящего для тестового задания оператора
 
+Допущения:
+- Любая почта считается валидной и на нее будет попытка отправить сообщение
+
 ---
 
 ---
@@ -34,12 +37,13 @@ docker compose -f photo_point_test/deploy/docker-compose.yml --env-file photo_po
 docker compose -f photo_point_test/deploy/docker-compose.yml --env-file photo_point_test/.env run --rm main_service python manage.py migrate
 ```
 
+## Тестирование
+
 Документация Swagger будет по адресу:
 ```bash
 http://localhost:8000/api/docs/
 ```
 
-## Тестирование
 После запуска проекта локально перейдите по ссылке ниже и нажмите start, чтобы получить chat_id, он нужен для отправки уведомления в тг
 ```bash
 https://t.me/Photo_point_test_bot
