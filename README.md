@@ -39,8 +39,14 @@ docker compose -f photo_point_test/deploy/docker-compose.yml --env-file photo_po
 http://localhost:8000/api/docs/
 ```
 
+## Тестирование
+После запуска проекта локально перейдите по ссылке ниже и нажмите start, чтобы получить chat_id, он нужен для отправки уведомления в тг
+```bash
+https://t.me/Photo_point_test_bot
+```
+
 4. Остановить проект:
 ```bash
 docker compose -f photo_point_test/deploy/docker-compose.yml --env-file photo_point_test/.env down
 ```
-(-v в последний раз добавить, чтобы базы следующих тестовых создавались автоматически заново)
+(-v в последний раз добавьте, чтобы базы данных в следующих тестовых заданиях создавались автоматически заново)
