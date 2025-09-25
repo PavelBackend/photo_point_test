@@ -1,0 +1,96 @@
+services:
+  main_service:
+    container_name: photo_point_service
+    build:
+      context: ../
+      dockerfile: deploy/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      TZ: "Europe/Moscow"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/app
+    networks:
+      - photo_point_backend
+    depends_on:
+      pg_db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  pg_db:
+    container_name: photo_point_database
+    image: postgres:16
+    env_file:
+      - ../.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - photo_point-data:/var/lib/postgresql/data
+    networks:
+      - photo_point_backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
+  rabbitmq:
+    container_name: photo_point_rabbitmq
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - photo_point_backend
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  celery:
+    container_name: photo_point_celery
+    build:
+      context: ../
+      dockerfile: deploy/Dockerfile
+    command: bash -c "sleep 10 && celery -A photo_point.celery worker -l info -E"
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - ../:/app
+    depends_on:
+      - rabbitmq
+      - pg_db
+    networks:
+      - photo_point_backend
+
+  bot:
+    container_name: photo_point_bot
+    build: ../tg_bot
+    restart: unless-stopped
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+    networks:
+      - photo_point_backend
+
+volumes:
+  photo_point-data:
+
+networks:
+  photo_point_backend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.19.0.0/16"
+          gateway: "172.19.0.1"
