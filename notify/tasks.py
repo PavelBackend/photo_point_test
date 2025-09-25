@@ -8,7 +8,12 @@ from notify.dto.notify_dto import Recipient
 logger = logging.getLogger(__name__)
 
 
-@shared_task(name="notify.send_notification", max_retries=3, default_retry_delay=60)
+@shared_task(
+    name="notify.send_notification",
+    max_retries=3,
+    default_retry_delay=60,
+    acks_late=True
+)
 def send_notification(to: dict, message: str) -> bool:
     recipient = Recipient(**to)
     logger.info(f"Starting task to send notification to: {recipient}")
