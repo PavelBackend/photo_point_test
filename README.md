@@ -41,5 +41,5 @@ http://localhost:8000/api/docs/
 
 4. Остановить проект:
 ```bash
-docker compose -f photo_point_test/deploy/docker-compose.yml --env-file photo_point_test/.env down
+docker compose -f photo_point_test/deploy/docker-compose.yml --env-file photo_point_test/.env down (-v в последний раз добавить, чтобы базы следующих тестовых создавались автоматически заново)
 ```
